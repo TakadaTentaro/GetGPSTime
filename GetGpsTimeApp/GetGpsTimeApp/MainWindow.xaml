@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:GetGpsTimeApp"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+    <StackPanel>
+        <TextBlock x:Name="utcTimeText" Text="UTC:" FontSize="30"/>
+        <TextBlock x:Name="jstTimeText" Text="JST:" FontSize="30"/>
+        <Button x:Name="button" Content="Start" Width="100" Height="50" Click="Button_Click" Margin="100"/>
+    </StackPanel>
 </Window>
