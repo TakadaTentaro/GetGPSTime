@@ -33,6 +33,8 @@ namespace GetGpsTimeApp
         public MainWindow()
         {
             InitializeComponent();
+
+            // GPSセンサの取得
             GeolocationSensor = SensorManager.GetSensorsByTypeId(SensorTypes.LocationGps)[0];
         }
 
