@@ -22,8 +22,12 @@ namespace GetGpsTimeApp
     public partial class MainWindow : Window
     {
 
+
+        // 位置情報GUID
+        // 参考：https://docs.microsoft.com/en-us/windows/desktop/sensorsapi/sensor-category-location
         private static Guid SENSOR_DATA_TYPE_LOCATION_GUID = new Guid("055C74D8-CA6F-47D6-95C6-1ED3637A0FF4");
 
+        // 位置センサ
         private Sensor GeolocationSensor;
 
         public MainWindow()
@@ -34,6 +38,7 @@ namespace GetGpsTimeApp
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            // GPS信号を取得する度に、イベント実行
             GeolocationSensor.DataReportChanged += DataReportChanged;
             button.IsEnabled = false;
         }
@@ -42,22 +47,20 @@ namespace GetGpsTimeApp
         {
             try
             {
-                foreach (Guid formatId in sender.DataReport.Values.Keys)
+                // NMEAフォーマットデータ
+                string[] gpsData = sender.DataReport.Values[SENSOR_DATA_TYPE_LOCATION_GUID][25].ToString().Split(',');
+
+                // gpsData[1]：HHmmss.00 gpsData[9]：yyMMdd
+                // NMEAフォーマットデータに含まれる時刻は、UTC時刻となる
+                DateTimeOffset dto = new DateTimeOffset(
+                    DateTime.ParseExact(string.Format("{0}{1}", gpsData[9], gpsData[1].Substring(0, 6)), "yyMMddHHmmss", null), TimeSpan.Zero);
+
+                this.Dispatcher.Invoke(() =>
                 {
-                    if (formatId == SENSOR_DATA_TYPE_LOCATION_GUID)
-                    {
-                        string[] gpsData = sender.DataReport.Values[formatId][25].ToString().Split(',');
+                    utcTimeText.Text = string.Format("UTC : {0}", dto.ToString());
+                    jstTimeText.Text = string.Format("JST : {0}", dto.ToLocalTime().ToString());
+                });
 
-                        DateTimeOffset dto = new DateTimeOffset(
-                            DateTime.ParseExact(string.Format("{0}{1}", gpsData[9], gpsData[1].Substring(0, 6)), "yyMMddHHmmss", null), TimeSpan.Zero);
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            utcTimeText.Text = string.Format("UTC : {0}", dto.ToString());
-                            jstTimeText.Text = string.Format("JST : {0}", dto.ToLocalTime().ToString());
-                        });
-
-                    }
-                }
             }
             catch (Exception ex)
             {
